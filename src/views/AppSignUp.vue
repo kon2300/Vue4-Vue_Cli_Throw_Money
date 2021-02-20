@@ -5,49 +5,64 @@
       <p class="column is-5 has-text-right">ユーザー名</p><input class=" column is-3 input" type="text" placeholder="userName" v-model="onChangeUsername">
     </div>
     <div class="columns is-vcentered">
-      <p class="column is-5 has-text-right">メールアドレス</p><input class=" column is-3 input" type="text" placeholder="E-mail" v-model="email">
+      <p class="column is-5 has-text-right">メールアドレス</p><input class=" column is-3 input" type="text" placeholder="E-mail" v-model="onChangeEmail">
     </div>
     <div class="columns is-vcentered">
-      <p class="column is-5 has-text-right">パスワード</p><input class=" column is-3 input" type="text" placeholder="Password" v-model="password">
+      <p class="column is-5 has-text-right">パスワード</p><input class=" column is-3 input" type="text" placeholder="Password" v-model="onChangePassword">
     </div>
     <div>
-      <p class="has-text-centered"><button class="button" @click="createUserAccount">新規登録</button></p>
+      <p class="has-text-centered"><button class="button" @click="onCreateUserAccount()">新規登録</button></p>
       <p class="has-text-centered p-3"><router-link to=''>ログインはこちらから</router-link></p>
     </div>
   </div>
 </template>
 
 <script>
-import firebase from '@/firebase.js';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 export default {
   name: 'AppSignUp',
-  data () {
-    return {
-      email: '',
-      password: ''
-    }
-  },
   computed: {
+    ...mapGetters ([
+      'getUsername',
+      'getEmail',
+      'getPassword'
+    ]),
     onChangeUsername: {
       get() {
-        return this.$store.getters.getUsername;
+        return this.getUsername;
       },
       set(value) {
-        this.$store.commit('changeUsername', value);
+        this.changeUsername(value);
+      }
+    },
+    onChangeEmail: {
+      get() {
+        return this.getEmail;
+      },
+      set(value) {
+        this.changeEmail(value);
+      }
+    },
+    onChangePassword: {
+      get() {
+        return this.getPassword;
+      },
+      set(value) {
+        this.changePassword(value);
       }
     }
   },
   methods: {
-    createUserAccount() {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.email, this.password)
-        .then(() => {
-          this.$router.push("/AppMyPage");
-        })
-        .catch(error => {
-          alert("Error!", error.message);
-        });
+    ...mapMutations ([
+      'changeUsername',
+      'changeEmail',
+      'changePassword'
+    ]),
+    ...mapActions ([
+      'createUserAccount'
+    ]),
+    onCreateUserAccount() {
+      this.createUserAccount();
     }
   }
 }
