@@ -29,8 +29,8 @@ export default createStore({
     getPassword: state => state.password
   },
   actions: {
-    async createUserAccount( { state, commit } ) {
-      await firebase
+    createUserAccount( { state, commit } ) {
+      firebase
       .auth()
       .createUserWithEmailAndPassword(state.email, state.password)
       .then((res) => {
