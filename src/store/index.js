@@ -34,7 +34,22 @@ export default createStore({
       .auth()
       .createUserWithEmailAndPassword(state.email, state.password)
       .then((res) => {
-        res.displayname = state.username;
+        res.user.updateProfile({
+          displayName: state.username
+          });
+        router.push('/AppMyPage');
+      })
+      .catch(error => {
+        commit('setError', error.message);
+        alert(state.error);
+      })
+    },
+    userSignIn( { state, commit } ) {
+      firebase
+      .auth()
+      .signInWithEmailAndPassword(state.email, state.password)
+      .then((res) => {
+        commit('changeUsername', res.user.displayName);
         router.push('/AppMyPage');
       })
       .catch(error => {
