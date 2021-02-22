@@ -4,7 +4,7 @@
       <p class="column is-5 has-text-right">メールアドレス</p><input class=" column is-3 input" type="text" placeholder="E-mail" v-model="onChangeEmail">
     </div>
     <div class="columns is-vcentered">
-      <p class="column is-5 has-text-right">パスワード</p><input class=" column is-3 input" type="text" placeholder="Password" v-model="onChangePassword">
+      <p class="column is-5 has-text-right">パスワード</p><input class=" column is-3 input" type="password" placeholder="Password" v-model="onChangePassword">
     </div>
   </div>
 
