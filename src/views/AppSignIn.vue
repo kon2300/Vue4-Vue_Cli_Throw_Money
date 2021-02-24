@@ -13,6 +13,11 @@
 import { mapActions } from 'vuex';
 export default {
   name: 'AppSignIn',
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.initialize();
+    })
+  },
   components: {
     'AppSignForm': require('@/components/AppSignForm.vue').default
   },
@@ -22,6 +27,9 @@ export default {
     ]),
     onUserSignIn() {
       this.userSignIn();
+    },
+    initialize() {
+      this.$store.commit('setError', '');
     }
   }
 }

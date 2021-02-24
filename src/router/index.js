@@ -7,7 +7,7 @@ const routes = [
   {
     path: '/',
     name: 'AppSignUp',
-    component: AppSignUp
+    component: AppSignUp,
   },
   {
     path: '/AppSignIn',
