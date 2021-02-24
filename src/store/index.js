@@ -7,7 +7,9 @@ export default createStore({
     username: '',
     email: '',
     password: '',
-    error: null
+    error: null,
+    uid: '',
+    wallet: null
   },
   mutations: {
     changeUsername (state, value) {
@@ -21,36 +23,77 @@ export default createStore({
     },
     setError (state, payload) {
       state.error = payload;
+    },
+    changeUid (state, payload) {
+      state.uid = payload;
+    },
+    changeWallet (state, payload) {
+      state.wallet = payload;
     }
   },
   getters: {
     getUsername: state => state.username,
     getEmail: state => state.email,
-    getPassword: state => state.password
+    getPassword: state => state.password,
+    getUid: state => state.uid,
+    getWallet: state => state.wallet
   },
   actions: {
-    createUserAccount( { state, commit } ) {
+    createUserAccount( { state, commit, dispatch } ) {
       firebase
       .auth()
       .createUserWithEmailAndPassword(state.email, state.password)
       .then((res) => {
         res.user.updateProfile({
-          displayName: state.username
+          displayName: state.username,
           });
-        router.push('/AppMyPage');
+        commit('changeUid', res.user.uid)
+        dispatch('setWalletFirestore')
       })
       .catch(error => {
         commit('setError', error.message);
         alert(state.error);
       })
     },
-    userSignIn( { state, commit } ) {
+    userSignIn( { state, commit, dispatch } ) {
       firebase
       .auth()
       .signInWithEmailAndPassword(state.email, state.password)
       .then((res) => {
         commit('changeUsername', res.user.displayName);
+        commit('changeUid', res.user.uid);
+        dispatch('getWalletFirestore');
+      })
+      .catch(error => {
+        commit('setError', error.message);
+        alert(state.error);
+      })
+    },
+    setWalletFirestore( { state, commit, dispatch } ) {
+      firebase
+      .firestore()
+      .collection('users')
+      .doc(state.uid)
+      .set({
+        wallet: 2000
+      })
+      .then(() => {
+        dispatch('getWalletFirestore');
+      })
+      .catch(error => {
+        commit('setError', error.message);
+        alert(state.error);
+      })
+    },
+    getWalletFirestore( { state, commit } ) {
+      firebase
+      .firestore()
+      .collection('users')
+      .doc(state.uid)
+      .get()
+      .then((doc) => {
         router.push('/AppMyPage');
+        commit('changeWallet', doc.data().wallet);
       })
       .catch(error => {
         commit('setError', error.message);
