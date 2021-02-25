@@ -16,11 +16,6 @@
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 export default {
   name: 'AppSignUp',
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.initialize();
-    })
-  },
   components: {
     'AppSignForm': require('@/components/AppSignForm.vue').default
   },
@@ -46,9 +41,6 @@ export default {
     ]),
     onCreateUserAccount() {
       this.createUserAccount();
-    },
-    initialize() {
-      this.$store.commit('setError', '');
     }
   }
 }
