@@ -7,7 +7,7 @@ export default createStore({
     username: '',
     email: '',
     password: '',
-    error: null,
+    error: '',
     uid: '',
     wallet: null
   },
@@ -35,6 +35,7 @@ export default createStore({
     getUsername: state => state.username,
     getEmail: state => state.email,
     getPassword: state => state.password,
+    getError: state => state.error,
     getUid: state => state.uid,
     getWallet: state => state.wallet
   },
@@ -48,11 +49,11 @@ export default createStore({
           displayName: state.username,
           });
         commit('changeUid', res.user.uid)
+        commit('setError', '');
         dispatch('setWalletFirestore')
       })
       .catch(error => {
-        commit('setError', error.message);
-        alert(state.error);
+        commit('setError', `※${ error.message }`);
       })
     },
     userSignIn( { state, commit, dispatch } ) {
@@ -62,11 +63,11 @@ export default createStore({
       .then((res) => {
         commit('changeUsername', res.user.displayName);
         commit('changeUid', res.user.uid);
+        commit('setError', '');
         dispatch('getWalletFirestore');
       })
       .catch(error => {
-        commit('setError', error.message);
-        alert(state.error);
+        commit('setError', `※${ error.message }`);
       })
     },
     setWalletFirestore( { state, commit, dispatch } ) {
@@ -78,11 +79,11 @@ export default createStore({
         wallet: 2000
       })
       .then(() => {
+        commit('setError', '');
         dispatch('getWalletFirestore');
       })
       .catch(error => {
-        commit('setError', error.message);
-        alert(state.error);
+        commit('setError', `※${ error.message }`);
       })
     },
     getWalletFirestore( { state, commit } ) {
@@ -92,12 +93,36 @@ export default createStore({
       .doc(state.uid)
       .get()
       .then((doc) => {
-        router.push('/AppMyPage');
         commit('changeWallet', doc.data().wallet);
+        commit('setError', '');
+        router.push('/AppMyPage');
       })
       .catch(error => {
-        commit('setError', error.message);
-        alert(state.error);
+        commit('setError', `※${ error.message }`);
+      })
+    },
+    userSignOut( { commit } ) {
+      firebase
+      .auth()
+      .signOut()
+      .then(()=>{
+        router.push('/AppSignIn');
+      })
+      .catch( (error)=>{
+        commit('setError', `※${ error.message }`);
+      })
+    },
+    userSignInCheck( { commit, dispatch } ) {
+      firebase
+      .auth()
+      .onAuthStateChanged(user => {
+        if (!user) {
+          router.push('/AppSignIn');
+        } else {
+          commit('changeUsername', user.displayName);
+          commit('changeUid', user.uid);
+          dispatch('getWalletFirestore');  
+        }
       })
     }
   },
