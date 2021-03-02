@@ -40,7 +40,7 @@ export default createStore({
         return user.name !== state.username;
       })
     },
-    toggleIsActive (state, payload) {
+    watchWallet (state, payload) {
       if(state.toggleNumber === payload) {
         state.toggleNumber = null;
       } else {

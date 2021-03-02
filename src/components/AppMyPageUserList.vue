@@ -43,10 +43,10 @@ export default {
   name: 'AppMyPageUserList',
   methods: {
     ...mapMutations([
-      'toggleIsActive'
+      'watchWallet'
     ]),
     watchWalletButton(index) {
-      this.toggleIsActive(index)
+      this.watchWallet(index)
     }
   }
 }
