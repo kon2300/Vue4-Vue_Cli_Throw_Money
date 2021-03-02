@@ -55,7 +55,8 @@ export default createStore({
     getError: state => state.error,
     getUid: state => state.uid,
     getWallet: state => state.wallet,
-    getUserist: state => state.userlist
+    getUserlist: state => state.userlist,
+    getToggleNumber: state => state.toggleNumber
   },
   actions: {
     createUserAccount( { state, commit, dispatch } ) {

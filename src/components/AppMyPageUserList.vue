@@ -11,12 +11,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in $store.state.userlist" :key="user.id">
+          <tr v-for="(user, index) in $store.getters.getUserlist" :key="user.id">
             <th class="is-size-4"> {{ user.name }} </th>
             <td class="has-text-right">
-              <div class="dropdown is-up"  :class="{'is-active': $store.state.toggleNumber === index}">
+              <div class="dropdown is-up"  :class="{'is-active': $store.getters.getToggleNumber === index}">
                 <div class="dropdown-trigger">
-                  <button class="button" aria-haspopup="true" aria-controls="dropdown-menu7" @click="onToggleIsActive(index)">
+                  <button class="button" aria-haspopup="true" aria-controls="dropdown-menu7" @click="watchWalletButton(index)">
                     <span>Walletを見る</span>
                   </button>
                 </div>
@@ -45,7 +45,7 @@ export default {
     ...mapMutations([
       'toggleIsActive'
     ]),
-    onToggleIsActive(index) {
+    watchWalletButton(index) {
       this.toggleIsActive(index)
     }
   }
