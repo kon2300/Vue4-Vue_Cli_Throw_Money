@@ -9,17 +9,19 @@ export default createStore({
     password: '',
     error: '',
     uid: '',
-    wallet: null
+    wallet: null,
+    userlist: [],
+    toggleNumber: null
   },
   mutations: {
-    changeUsername (state, value) {
-      return state.username = value;
+    changeUsername (state, payload) {
+      state.username = payload;
     },
-    changeEmail (state, value) {
-      return state.email = value;
+    changeEmail (state, payload) {
+      state.email = payload;
     },
-    changePassword (state, value) {
-      return state.password = value;
+    changePassword (state, payload) {
+      state.password = payload;
     },
     setError (state, payload) {
       state.error = payload;
@@ -29,6 +31,21 @@ export default createStore({
     },
     changeWallet (state, payload) {
       state.wallet = payload;
+    },
+    changeUserlist (state, payload) {
+      state.userlist.push(payload);
+    },
+    filterUserlist (state) {
+      state.userlist = state.userlist.filter(user => {
+        return user.name !== state.username;
+      })
+    },
+    toggleIsActive (state, payload) {
+      if(state.toggleNumber === payload) {
+        state.toggleNumber = null;
+      } else {
+        state.toggleNumber = payload;
+      }
     }
   },
   getters: {
@@ -37,7 +54,8 @@ export default createStore({
     getPassword: state => state.password,
     getError: state => state.error,
     getUid: state => state.uid,
-    getWallet: state => state.wallet
+    getWallet: state => state.wallet,
+    getUserist: state => state.userlist
   },
   actions: {
     createUserAccount( { state, commit, dispatch } ) {
@@ -45,12 +63,9 @@ export default createStore({
       .auth()
       .createUserWithEmailAndPassword(state.email, state.password)
       .then((res) => {
-        res.user.updateProfile({
-          displayName: state.username,
-          });
-        commit('changeUid', res.user.uid)
-        commit('setError', '');
-        dispatch('setWalletFirestore')
+        res.user.updateProfile( { displayName: state.username } );
+        commit('changeUid', res.user.uid);
+        dispatch('setWalletFirestore');
       })
       .catch(error => {
         commit('setError', `※${ error.message }`);
@@ -63,7 +78,6 @@ export default createStore({
       .then((res) => {
         commit('changeUsername', res.user.displayName);
         commit('changeUid', res.user.uid);
-        commit('setError', '');
         dispatch('getWalletFirestore');
       })
       .catch(error => {
@@ -76,10 +90,10 @@ export default createStore({
       .collection('users')
       .doc(state.uid)
       .set({
+        name: state.username, 
         wallet: 2000
       })
       .then(() => {
-        commit('setError', '');
         dispatch('getWalletFirestore');
       })
       .catch(error => {
@@ -93,8 +107,8 @@ export default createStore({
       .doc(state.uid)
       .get()
       .then((doc) => {
+        commit('changeUsername', doc.data().name);
         commit('changeWallet', doc.data().wallet);
-        commit('setError', '');
         router.push('/AppMyPage');
       })
       .catch(error => {
@@ -121,8 +135,24 @@ export default createStore({
         } else {
           commit('changeUsername', user.displayName);
           commit('changeUid', user.uid);
-          dispatch('getWalletFirestore');  
+          dispatch('getWalletFirestore'); 
+          dispatch('getUserlist');
         }
+      })
+    },
+    getUserlist( { commit }) {
+      firebase
+      .firestore()
+      .collection('users')
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          commit('changeUserlist', doc.data());
+        })
+        commit('filterUserlist');
+      })
+      .catch(error => {
+        commit('setError', `※${ error.message }`);
       })
     }
   },

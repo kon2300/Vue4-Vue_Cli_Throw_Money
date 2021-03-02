@@ -5,15 +5,7 @@
       <p class="column has-text-right">残高: {{ $store.getters.getWallet }}</p>
       <p class="column has-text-right"><button class="button is-info" @click="onSignOut">ログアウト</button></p>
     </div>
-    <div class="has-text-centered m-3">
-      <h1 class="title h1">ユーザ一覧</h1>
-      <table>
-        <tr>
-          <th>ユーザ名</th>
-        </tr>
-        <tbody></tbody>
-      </table>
-    </div>
+    <AppMyPageUserList />
   </div>
 </template>
 
@@ -21,10 +13,13 @@
 import { mapActions } from 'vuex';
 export default {
   name: 'AppMyPage',
+  components: {
+    'AppMyPageUserList': require('@/components/AppMyPageUserList.vue').default
+  },
   methods: {
     ...mapActions([
       'userSignOut',
-      'userSignInCheck'
+      'userSignInCheck',
     ]),
     onSignOut() {
       this.userSignOut();
