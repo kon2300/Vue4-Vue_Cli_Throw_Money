@@ -2,8 +2,8 @@
   <div class="app-my-page">
     <div class="columns m-5 is-size-4">
       <p class="column"> {{ $store.getters.getUsername }} さん ようこそ！!</p>
-      <p class="column has-text-right">残高: {{ $store.getters.getWallet }}</p>
-      <p class="column has-text-right"><button class="button is-info" @click="onSignOut">ログアウト</button></p>
+      <p class="column has-text-right"> 残高: {{ $store.getters.getWallet }} </p>
+      <p class="column has-text-right"><button class="button is-info" @click="onSignOut"> ログアウト </button></p>
     </div>
     <AppMyPageUserList />
   </div>
