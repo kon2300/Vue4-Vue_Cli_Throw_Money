@@ -42,7 +42,7 @@
                   <button class="modal-close is-large" aria-label="close" @click="toggleModalButton(index)"></button>
                 </div>
               </div>                    
-            </td>{{$store.getters.getSendUser}}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     ...mapActions([
-      'passedWalletFirestore'
+      'exchangeWalletFirestore'
     ]),
     ...mapMutations([
       'changeWatchWallet',
@@ -101,8 +101,7 @@ export default {
       this.selectPassedUser();
     },
     sendMoneyButton() {
-      this.passedWalletFirestore();
-      this.toggleModalButton();
+      this.exchangeWalletFirestore();
     }
   }
 }
