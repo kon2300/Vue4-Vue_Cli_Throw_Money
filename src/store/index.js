@@ -205,7 +205,7 @@ export default createStore({
       try {
         await firebase.firestore().runTransaction(async transaction => {
           await transaction.update(passedWallet, { wallet: state.passedUser.wallet + state.sendMoney } );
-          await transaction.update(sendWallet, {wallet: state.wallet - state.sendMoney} );
+          await transaction.update(sendWallet, { wallet: state.wallet - state.sendMoney } );
         })
         .then(() => {
         commit('resetSendMoney');
@@ -215,40 +215,7 @@ export default createStore({
       catch (error) {
         commit('setError', `※${ error.message }`);
       }
-    },
-    // // 通貨を受け取るための処理
-    // passedWalletFirestore( { state, commit, dispatch } ) {
-    //   firebase
-    //   .firestore()
-    //   .collection('users')
-    //   .doc(state.passedUser.uid)
-    //   .update({
-    //     wallet: state.passedUser.wallet + state.sendMoney
-    //   })
-    //   .then(() => {
-    //     dispatch('sendWalletFirestore');
-    //   })
-    //   .catch(error => {
-    //     commit('setError', `※${ error.message }`);
-    //   })
-    // },
-    // // 通貨を渡すための処理
-    // sendWalletFirestore( { state, commit, dispatch } ) {
-    //   firebase
-    //   .firestore()
-    //   .collection('users')
-    //   .doc(state.uid)
-    //   .update({
-    //     wallet: state.wallet - state.sendMoney
-    //   })
-    //   .then(() => {
-        
-    //     dispatch('userSignInCheck');
-    //   })
-    //   .catch(error => {
-    //     commit('setError', `※${ error.message }`);
-    //   })
-    // }
+    }
   },
   modules: {
   }
