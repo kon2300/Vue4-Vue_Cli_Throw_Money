@@ -11,7 +11,12 @@ export default createStore({
     uid: '',
     wallet: null,
     userlist: [],
-    toggleNumber: null
+    toggleNumber: null,
+    watchWallet: false,
+    giveWallet: false,
+    sendMoney: 0,
+    holdPassedUser: [],
+    passedUser: []
   },
   mutations: {
     changeUsername (state, payload) {
@@ -35,17 +40,41 @@ export default createStore({
     changeUserlist (state, payload) {
       state.userlist.push(payload);
     },
+    resetUserlist (state) {
+      state.userlist = [];
+    },
     filterUserlist (state) {
       state.userlist = state.userlist.filter(user => {
         return user.name !== state.username;
       })
     },
-    watchWallet (state, payload) {
+    watchToggleNumber (state, payload) {
       if(state.toggleNumber === payload) {
+        state.toggleNumber = null;
+      } else if(state.toggleNumber === payload) {
         state.toggleNumber = null;
       } else {
         state.toggleNumber = payload;
       }
+    },
+    changeWatchWallet (state) {
+      state.watchWallet = !state.watchWallet;
+    },
+    changeGiveWallet (state) {
+      state.giveWallet = !state.giveWallet;
+    },
+    resetWallet (state) {
+      state.watchWallet = false;
+      state.giveWallet = false;
+    },
+    changeSendMoney (state, payload) {
+      state.sendMoney = payload;
+    },
+    selectPassedUser (state) {
+      state.passedUser = state.userlist[state.toggleNumber];
+    },
+    resetSendMoney (state) {
+      state.sendMoney = 0;
     }
   },
   getters: {
@@ -56,9 +85,14 @@ export default createStore({
     getUid: state => state.uid,
     getWallet: state => state.wallet,
     getUserlist: state => state.userlist,
-    getToggleNumber: state => state.toggleNumber
+    getToggleNumber: state => state.toggleNumber,
+    getWatchWallet: state => state.watchWallet,
+    getGiveWallet: state => state.giveWallet,
+    getSendMoney: state => state.sendMoney,
+    getPassedUser: state => state.passedUser
   },
   actions: {
+    // アカウントの作成
     createUserAccount( { state, commit, dispatch } ) {
       firebase
       .auth()
@@ -72,6 +106,7 @@ export default createStore({
         commit('setError', `※${ error.message }`);
       })
     },
+    // 登録済アカウントでのサインイン
     userSignIn( { state, commit, dispatch } ) {
       firebase
       .auth()
@@ -85,6 +120,7 @@ export default createStore({
         commit('setError', `※${ error.message }`);
       })
     },
+    // 通貨の管理
     setWalletFirestore( { state, commit, dispatch } ) {
       firebase
       .firestore()
@@ -92,7 +128,8 @@ export default createStore({
       .doc(state.uid)
       .set({
         name: state.username, 
-        wallet: 2000
+        wallet: 2000,
+        uid: state.uid
       })
       .then(() => {
         dispatch('getWalletFirestore');
@@ -101,6 +138,7 @@ export default createStore({
         commit('setError', `※${ error.message }`);
       })
     },
+    // 通貨の取得
     getWalletFirestore( { state, commit } ) {
       firebase
       .firestore()
@@ -116,6 +154,7 @@ export default createStore({
         commit('setError', `※${ error.message }`);
       })
     },
+    // アカウントのサインアウト
     userSignOut( { commit } ) {
       firebase
       .auth()
@@ -127,6 +166,7 @@ export default createStore({
         commit('setError', `※${ error.message }`);
       })
     },
+    // 登録済アカウントか否かのチェック
     userSignInCheck( { commit, dispatch } ) {
       firebase
       .auth()
@@ -141,12 +181,14 @@ export default createStore({
         }
       })
     },
+    // ユーザ一覧表示のためのデータ取得
     getUserlist( { commit }) {
       firebase
       .firestore()
       .collection('users')
       .get()
       .then((querySnapshot) => {
+        commit('resetUserlist');
         querySnapshot.forEach((doc) => {
           commit('changeUserlist', doc.data());
         })
@@ -155,6 +197,24 @@ export default createStore({
       .catch(error => {
         commit('setError', `※${ error.message }`);
       })
+    },
+    // 通貨送金の処理
+    async exchangeWalletFirestore( { state, commit, dispatch } ) {
+      const passedWallet = firebase.firestore().collection('users').doc(state.passedUser.uid);
+      const sendWallet = firebase.firestore().collection('users').doc(state.uid);
+      try {
+        await firebase.firestore().runTransaction(async transaction => {
+          await transaction.update(passedWallet, { wallet: state.passedUser.wallet + state.sendMoney } );
+          await transaction.update(sendWallet, { wallet: state.wallet - state.sendMoney } );
+        })
+        .then(() => {
+        commit('resetSendMoney');
+        dispatch('userSignInCheck');
+        })
+      }
+      catch (error) {
+        commit('setError', `※${ error.message }`);
+      }
     }
   },
   modules: {
